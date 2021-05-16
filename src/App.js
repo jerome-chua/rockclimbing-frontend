@@ -1,15 +1,21 @@
 import './App.css';
+import React from 'react';
 import {Container, Row, Col } from 'react-bootstrap'
+import TripList from '../src/components/TripList.jsx'
+import { TripProvider } from './store.js'
 
 function App() {
   return (
-    <Container>
-      <Row>
-        <Col>
-        <h1>Trips</h1>
-        </Col>
-      </Row>
-    </Container>
+    <TripProvider>
+      <Container>
+        <Row>
+          <Col>
+            <h1>Trips</h1>
+            <TripList />
+          </Col>
+        </Row>
+      </Container>
+    </TripProvider>
   );
 }
 
