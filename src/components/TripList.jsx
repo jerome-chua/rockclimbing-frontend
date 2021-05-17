@@ -6,12 +6,24 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const StyledContainer = styled.div`
   margin: 8px;
+  padding: 5px;
   border: 1px solid lightgrey;
-  border-radius: 2px;
+  border-radius: 15px;
 `;
 
 const TripTitle = styled.h3`
   padding: 8px;
+  font-family: monaco;
+  text-transform: capitalize;
+`;
+
+const RouteName = styled.li`
+  display: flex;
+  align-items: center;
+  border: solid 2px #d0d0d0;
+  border-radius: 10px;
+  padding: 0.5em 0.8em 0.5em 0.5em;
+  margin-bottom: 0.5em;
 `;
 
 export default function TripList() {
@@ -44,11 +56,32 @@ export default function TripList() {
             <Col>
               <StyledContainer>
                 <TripTitle>{trip}</TripTitle>
-                <ul>
-                  {routes.map((route) => (
-                    <li>{route.name}</li>
-                  ))}
-                </ul>
+                <DragDropContext>
+                  <Droppable droppableId="routes">
+                    {(provided) => (
+                      <ul {...provided.droppableProps} ref={provided.innerRef}>
+                        {routes.map((route, index) => (
+                          <Draggable
+                            key={route.id}
+                            draggableId={route.id.toString()}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <RouteName
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                              >
+                                {route.name}
+                              </RouteName>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </ul>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               </StyledContainer>
             </Col>
           );
