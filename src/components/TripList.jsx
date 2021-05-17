@@ -1,7 +1,18 @@
 import React, { useEffect, useContext } from "react";
 import { TripContext, loadTripList, loadRouteList } from "../store.js";
 import { Container, Row, Col } from "react-bootstrap";
+import styled from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
+const StyledContainer = styled.div`
+  margin: 8px;
+  border: 1px solid lightgrey;
+  border-radius: 2px;
+`;
+
+const TripTitle = styled.h3`
+  padding: 8px;
+`;
 
 export default function TripList() {
   console.log("----------- Render Happened -----------");
@@ -13,7 +24,7 @@ export default function TripList() {
     loadRouteList(dispatch);
   }, []);
 
-  // Update trips & routes here (manipulate to get nice array).
+  // Mmanipulate to get array for each trip name.
   const tripRoutes = {};
 
   trips.forEach((trip) => {
@@ -25,25 +36,23 @@ export default function TripList() {
     });
   });
 
-  console.log("tripRoutes", tripRoutes);
-
   return (
     <Container>
       <Row>
-        <Col>
-          {Object.entries(tripRoutes).map(([trip, routes]) => {
-            return (
-              <div>
-                <h4>{trip}</h4>
+        {Object.entries(tripRoutes).map(([trip, routes]) => {
+          return (
+            <Col>
+              <StyledContainer>
+                <TripTitle>{trip}</TripTitle>
                 <ul>
                   {routes.map((route) => (
                     <li>{route.name}</li>
                   ))}
                 </ul>
-              </div>
-            );
-          })}
-        </Col>
+              </StyledContainer>
+            </Col>
+          );
+        })}
       </Row>
     </Container>
   );
