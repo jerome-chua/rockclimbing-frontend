@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { TripContext, loadTripList, loadRouteList } from "../store.js";
 import { Container, Row, Col } from "react-bootstrap";
 import styled from "styled-components";
@@ -12,6 +12,7 @@ const StyledContainer = styled.div`
 `;
 
 const TripTitle = styled.h3`
+  color: #f2a154;
   padding: 8px;
   font-family: monaco;
   text-transform: capitalize;
@@ -24,17 +25,19 @@ const RouteName = styled.li`
   border-radius: 10px;
   padding: 0.5em 0.8em 0.5em 0.5em;
   margin-bottom: 0.5em;
+  color: #314e52;
+  background-color: white;
 `;
 
 export default function TripList() {
-  console.log("----------- Render Happened -----------");
   const { store, dispatch } = useContext(TripContext);
   const { trips, routes } = store;
+  const [routeList, updateRouteList] = useState(routes);
 
   useEffect(() => {
     loadTripList(dispatch);
     loadRouteList(dispatch);
-  }, []);
+  }, [dispatch]);
 
   // Mmanipulate to get array for each trip name.
   const tripRoutes = {};
@@ -48,6 +51,15 @@ export default function TripList() {
     });
   });
 
+  function handleOnDragEnd(result) {
+    if (!result.destination) return;
+    const items = Array.from(routeList);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    updateRouteList(items);
+  }
+
   return (
     <Container>
       <Row>
@@ -56,7 +68,7 @@ export default function TripList() {
             <Col>
               <StyledContainer>
                 <TripTitle>{trip}</TripTitle>
-                <DragDropContext>
+                <DragDropContext onDragEnd={handleOnDragEnd}>
                   <Droppable droppableId="routes">
                     {(provided) => (
                       <ul {...provided.droppableProps} ref={provided.innerRef}>
