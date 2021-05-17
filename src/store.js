@@ -50,11 +50,8 @@ const { Provider } = TripContext;
 
 export function TripProvider({children}) {
   const [store, dispatch] = useReducer(tripReducer, initialState);
-  return (
-    <Provider value={{store, dispatch}}>
-      {children}
-    </Provider>
-  )
+
+  return <Provider value={{store, dispatch}}> {children} </Provider>
 }
 
 // Reqyests
@@ -63,8 +60,7 @@ const BACKEND_URL = 'http://localhost:3004'
 export function loadRouteList(dispatch) {
   axios.get(`${BACKEND_URL}/getroutes`)
   .then((res) => {
-    const routes = res.data;
-    dispatch(loadRoutesAction(routes))
+    dispatch(loadRoutesAction(res.data))
   });
 }
 
