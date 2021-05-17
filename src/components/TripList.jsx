@@ -14,23 +14,35 @@ export default function TripList() {
   }, []);
 
   // Update trips & routes here (manipulate to get nice array).
-  console.log("Routes!", routes);
-  console.log("trips!", trips);
+  const tripRoutes = {};
+
+  trips.forEach((trip) => {
+    tripRoutes[trip.name] = [];
+    routes.forEach((route) => {
+      if (route.tripId === trip.id) {
+        tripRoutes[trip.name].push(route);
+      }
+    });
+  });
+
+  console.log("tripRoutes", tripRoutes);
 
   return (
     <Container>
       <Row>
         <Col>
-          {trips.map((trip, index) => (
-            <h1 key={index}>
-              ID: {trip.id}. {trip.name}
-            </h1>
-          ))}
-          {routes.map(({ name, tripId }, index) => (
-            <h5 key={index}>
-              Trip:{tripId} {name}
-            </h5>
-          ))}
+          {Object.entries(tripRoutes).map(([trip, routes]) => {
+            return (
+              <div>
+                <h4>{trip}</h4>
+                <ul>
+                  {routes.map((route) => (
+                    <li>{route.name}</li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </Col>
       </Row>
     </Container>
