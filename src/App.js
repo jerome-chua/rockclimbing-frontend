@@ -10,7 +10,7 @@ export default function App() {
       <Container>
         <Row>
           <Col>
-            <h1 className='my-3'>Trips</h1>
+            <h1 className='mt-3 mb-5 text-center'>Trips</h1>
               <TripList />
           </Col>
         </Row>
