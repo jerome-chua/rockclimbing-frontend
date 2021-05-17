@@ -3,28 +3,21 @@ import { useState, useReducer } from 'react';
 import axios from 'axios';
 
 import Modal from './modal.js';
-import { reducer } from './reducer';
+import { 
+  reducer,
+  defaultState,
+  loadRoutes,
+  RouteProvider,
 
-const defaultState = {
-  routes: [],
-  isModalOpen: false,
-  modalContent: '',
-};
+ } from '../store.js';
 
 const AddRoute = () => {
   const [name, setName] = useState('');
   const [state, dispatch] = useReducer(reducer, defaultState);
-  console.log(state);
-  const BACKEND_URL = 'http://localhost:3004';
+  
 
   useEffect(() => {
-    axios
-      .get(BACKEND_URL + '/routes/1')
-      .then((response) => {
-        const routes = response.data.tripRoutes;
-        console.log(routes);
-        dispatch({type: 'LOAD_ROUTES', payload: routes})
-      })
+    loadRoutes(dispatch);
   }, [])
 
   const handleSubmit = (e) => {
@@ -44,6 +37,7 @@ const AddRoute = () => {
 
   return (
     <>
+    <RouteProvider>
     {state.isModalOpen && (
       <Modal closeModal={closeModal} modalContent={state.modalContent} />
     )}
@@ -62,6 +56,7 @@ const AddRoute = () => {
         </div>
       )
     })}
+    </RouteProvider>
     </>
   )
 }
