@@ -7,9 +7,12 @@ import {
   reducer,
   defaultState,
   loadRoutes,
+  addNewRoute,
   RouteProvider,
+  difficulty,
 
  } from '../store.js';
+import AddDifficulty from './addDifficulty.js';
 
 const AddRoute = () => {
   const [name, setName] = useState('');
@@ -23,8 +26,9 @@ const AddRoute = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name) { 
-      const newRoute = { name, trip_id: 1 };
+      const newRoute = { name, tripId: 1 };
       dispatch({type: 'ADD_ROUTE', payload: newRoute})
+      addNewRoute(dispatch, name);
       setName('');
     } else {
       dispatch({type: 'NO_VALUE'});
@@ -41,18 +45,24 @@ const AddRoute = () => {
     {state.isModalOpen && (
       <Modal closeModal={closeModal} modalContent={state.modalContent} />
     )}
+    <h2 className='routes-header'>Routes</h2>
     <form onSubmit={handleSubmit} className='add-route-form'>
-      <div>
+      <div className='add-route-input-div'>
         <input type='text' value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <button type='submit'>ADD</button>
     </form>
-    {state.routes.map((route) => {
+    {state.routes.map((route, index) => {
       console.log(state.routes);
       return (
         <div key={route.id} className='route'>
           <h4>{route.name}</h4>
-          <button className="add-route-remove-btn" onClick={() => dispatch({type: 'REMOVE_ITEM', payload: route.id})}>REMOVE</button>
+          {route.difficulty ? <h4>{route.difficulty}</h4> :
+          <>
+          <AddDifficulty dispatch={dispatch} difficulty={difficulty} id={index} routeId={route.id}/>
+          </>}
+          <button className="add-route-remove-btn" onClick={() => dispatch({type: 'REMOVE_ROUTE', payload: route.id})}>REMOVE</button>
+          
         </div>
       )
     })}

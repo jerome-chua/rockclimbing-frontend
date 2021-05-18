@@ -43,7 +43,7 @@ export const reducer = (state, action) => {
   }
 
   if(action.type === 'LOAD_ROUTES') {
-    console.log('state.routes', [...state.routes]);
+    
     const allRoutes = [...state.routes, ...action.payload] 
     console.log(allRoutes);
     return {
@@ -52,6 +52,12 @@ export const reducer = (state, action) => {
     }
   }
 
+  if (action.type === 'ADD_DIFFICULTY') {
+    state.routes[action.payload.id].difficulty = action.payload.difficulty;
+    return {
+      ...state,
+    }
+  } 
   throw new Error ('no matching action');
 }
 
@@ -65,9 +71,12 @@ export const RouteProvider = ({children}) => {
   )
 }
 
+export const difficulty = [1, 2, 3, 4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 5.13, 5.14, 5.15];
+
 // backend requests
 const BACKEND_URL = 'http://localhost:3004';
 
+// get all available routes
 export const loadRoutes = (dispatch) => {
   axios
       .get(BACKEND_URL + '/routes/1')
@@ -76,5 +85,30 @@ export const loadRoutes = (dispatch) => {
         console.log(routes);
         dispatch({type: 'LOAD_ROUTES', payload: routes})
       })
+      .catch((error) => console.log(error));
 }
 
+// add a new route to the database
+export const addNewRoute = (dispatch, name) => {
+  axios
+        .post(BACKEND_URL + '/addRoute', {
+          name: name,
+          tripId: 1})
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => console.log(error))
+}
+
+// update difficulty level of routes
+export const updateDifficulty = (routeId, routeDifficulty) => {
+  axios
+    .post(BACKEND_URL + '/addDifficulty', {
+      routeId: routeId,
+      difficulty: routeDifficulty
+    })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => console.log(error));
+}
