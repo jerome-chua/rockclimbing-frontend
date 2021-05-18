@@ -5,10 +5,12 @@ import React, { useReducer } from 'react';
 export const initialState = {
   trips: [],
   routes: [],
+  tripRoutes: {},
 };
 
 const LOAD_TRIPS = 'LOAD_TRIPS';
 const LOAD_ROUTES = 'LOAD_ROUTES';
+const TRIP_ROUTES = 'TRIP_ROUTES';
 
 export function tripReducer(state, action) {
   switch (action.type) {
@@ -22,6 +24,12 @@ export function tripReducer(state, action) {
       return {
         ...state, 
         routes: action.payload
+      }
+
+    case TRIP_ROUTES:
+      return {
+        ...state,
+        tripRoutes: {...action.payload}
       }
 
     default:
@@ -44,6 +52,13 @@ export function loadRoutesAction(routes) {
   }
 }
 
+export function loadTripRoutesAction(tripRoutes) {
+  return {
+    type: TRIP_ROUTES,
+    payload: tripRoutes,
+  }
+}
+
 // Provider
 export const TripContext = React.createContext(null);
 const { Provider } = TripContext;
@@ -60,7 +75,8 @@ const BACKEND_URL = 'http://localhost:3004'
 export function loadRouteList(dispatch) {
   axios.get(`${BACKEND_URL}/getroutes`)
   .then((res) => {
-    dispatch(loadRoutesAction(res.data))
+    const routes = res.data;
+    dispatch(loadRoutesAction(routes))
   });
 }
 
@@ -72,4 +88,26 @@ export function loadTripList(dispatch) {
   });
 } 
 
+export async function loadTripRoutes(dispatch) {
+  const [trips, routes] = await Promise.all([
+    axios.get(`${BACKEND_URL}/gettrips`),
+    axios.get(`${BACKEND_URL}/getroutes`)
+  ])
+
+  const tripRoutes = {}
+
+  trips.data.forEach(({ name, id }) => {
+    tripRoutes[id] = {};
+    tripRoutes[id].name = name;
+    tripRoutes[id].items = [];
+    routes.data.forEach((route) => {
+      if (route.tripId === id) {
+        tripRoutes[id].items.push(route);
+      }
+    });
+  });
+
+  console.log('tripRoutes', tripRoutes);
+  dispatch(loadTripRoutesAction(tripRoutes))
+}
 

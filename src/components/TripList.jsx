@@ -1,104 +1,164 @@
 import React, { useEffect, useContext, useState } from "react";
-import { TripContext, loadTripList, loadRouteList } from "../store.js";
-import { Container, Row, Col } from "react-bootstrap";
-import styled from "styled-components";
+import { TripContext, loadTripRoutes } from "../store.js";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-const StyledContainer = styled.div`
-  margin: 8px;
-  padding: 5px;
-  border: 1px solid lightgrey;
-  border-radius: 15px;
-`;
+// import { Container, Row, Col } from "react-bootstrap";
+// import styled from "styled-components";
 
-const TripTitle = styled.h3`
-  color: #f2a154;
-  padding: 8px;
-  font-family: monaco;
-  text-transform: capitalize;
-`;
+// const StyledContainer = styled.div`
+//   margin: 8px;
+//   padding: 5px;
+//   border: 1px solid lightgrey;
+//   border-radius: 15px;
+// `;
 
-const RouteName = styled.li`
-  display: flex;
-  align-items: center;
-  border: solid 2px #d0d0d0;
-  border-radius: 10px;
-  padding: 0.5em 0.8em 0.5em 0.5em;
-  margin-bottom: 0.5em;
-  color: #314e52;
-  background-color: white;
-`;
+// const TripTitle = styled.h3`
+//   color: #f2a154;
+//   padding: 8px;
+//   font-family: monaco;
+//   text-transform: capitalize;
+// `;
 
-export default function TripList() {
-  const { store, dispatch } = useContext(TripContext);
-  const { trips, routes } = store;
-  const [routeList, updateRouteList] = useState(routes);
+// const RouteName = styled.li`
+//   display: flex;
+//   align-items: center;
+//   border: solid 2px #d0d0d0;
+//   border-radius: 10px;
+//   padding: 0.5em 0.8em 0.5em 0.5em;
+//   margin-bottom: 0.5em;
+//   color: #314e52;
+//   background-color: white;
+// `;
+
+const onDragEnd = (result, columns, setColumns) => {
+  if (!result.destination) return;
+  const { source, destination } = result;
+
+  if (source.droppableId !== destination.droppableId) {
+    const sourceColumn = columns[source.droppableId];
+    const destColumn = columns[destination.droppableId];
+
+    const sourceItems = [...sourceColumn.items];
+    const destItems = [...destColumn.items];
+
+    const [removed] = sourceItems.splice(source.index, 1);
+
+    destItems.splice(destination.index, 0, removed);
+
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...sourceColumn,
+        items: sourceItems,
+      },
+      [destination.droppableId]: {
+        ...destColumn,
+        items: destItems,
+      },
+    });
+  } else {
+    const column = columns[source.droppableId];
+    const copiedItems = [...column.items];
+    const [removed] = copiedItems.splice(source.index, 1);
+
+    copiedItems.splice(destination.index, 0, removed);
+
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...column,
+        items: copiedItems,
+      },
+    });
+  }
+};
+
+export default function TripList({ tripRoutes }) {
+  const [columns, setColumns] = useState({});
 
   useEffect(() => {
-    loadTripList(dispatch);
-    loadRouteList(dispatch);
-  }, [dispatch]);
-
-  // Mmanipulate to get array for each trip name.
-  const tripRoutes = {};
-
-  trips.forEach((trip) => {
-    tripRoutes[trip.name] = [];
-    routes.forEach((route) => {
-      if (route.tripId === trip.id) {
-        tripRoutes[trip.name].push(route);
-      }
-    });
-  });
-
-  function handleOnDragEnd(result) {
-    if (!result.destination) return;
-    const items = Array.from(routeList);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    updateRouteList(items);
-  }
+    setColumns(tripRoutes);
+  }, [tripRoutes]);
 
   return (
-    <Container>
-      <Row>
-        {Object.entries(tripRoutes).map(([trip, routes]) => {
+    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
+      <DragDropContext
+        onDragEnd={(result) => onDragEnd(result, columns, setColumns)}
+      >
+        {Object.entries(columns).map(([columnId, column], index) => {
           return (
-            <Col>
-              <StyledContainer>
-                <TripTitle>{trip}</TripTitle>
-                <DragDropContext onDragEnd={handleOnDragEnd}>
-                  <Droppable droppableId="routes">
-                    {(provided) => (
-                      <ul {...provided.droppableProps} ref={provided.innerRef}>
-                        {routes.map((route, index) => (
-                          <Draggable
-                            key={route.id}
-                            draggableId={route.id.toString()}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <RouteName
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                ref={provided.innerRef}
-                              >
-                                {route.name}
-                              </RouteName>
-                            )}
-                          </Draggable>
-                        ))}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+              key={columnId}
+            >
+              <h2>
+                {index}. {column.name}
+              </h2>
+              <div style={{ margin: 8 }}>
+                <Droppable droppableId={columnId} key={columnId}>
+                  {/* {column.items.map((route) => (
+                    <p>{route.name}</p>
+                  ))} */}
+                  {(provided, snapshot) => {
+                    return (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={{
+                          background: snapshot.isDraggingOver
+                            ? "lightblue"
+                            : "lightgrey",
+                          padding: 4,
+                          width: 250,
+                          minHeight: 500,
+                        }}
+                      >
+                        {column.items.map((item, index) => {
+                          return (
+                            <Draggable
+                              key={item.id.toString()}
+                              draggableId={item.id.toString()}
+                              index={index}
+                            >
+                              {(provided, snapshot) => {
+                                return (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      userSelect: "none",
+                                      padding: 16,
+                                      margin: "0 0 8px 0",
+                                      minHeight: "50px",
+                                      backgroundColor: snapshot.isDragging
+                                        ? "#263B4A"
+                                        : "#456C86",
+                                      color: "white",
+                                      ...provided.draggableProps.style,
+                                    }}
+                                  >
+                                    {item.name}
+                                  </div>
+                                );
+                              }}
+                            </Draggable>
+                          );
+                        })}
                         {provided.placeholder}
-                      </ul>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </StyledContainer>
-            </Col>
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+            </div>
           );
         })}
-      </Row>
-    </Container>
+      </DragDropContext>
+    </div>
   );
 }
