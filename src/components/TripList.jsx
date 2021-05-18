@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import { TripContext, loadTripRoutes } from "../store.js";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import styled from "styled-components";
 
 // import { Container, Row, Col } from "react-bootstrap";
 // import styled from "styled-components";
@@ -12,12 +13,12 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 //   border-radius: 15px;
 // `;
 
-// const TripTitle = styled.h3`
-//   color: #f2a154;
-//   padding: 8px;
-//   font-family: monaco;
-//   text-transform: capitalize;
-// `;
+const TripTitle = styled.h2`
+  color: #f2a154;
+  padding: 8px;
+  font-family: monaco;
+  text-transform: capitalize;
+`;
 
 // const RouteName = styled.li`
 //   display: flex;
@@ -95,14 +96,11 @@ export default function TripList({ tripRoutes }) {
               }}
               key={columnId}
             >
-              <h2>
+              <TripTitle>
                 {index}. {column.name}
-              </h2>
+              </TripTitle>
               <div style={{ margin: 8 }}>
                 <Droppable droppableId={columnId} key={columnId}>
-                  {/* {column.items.map((route) => (
-                    <p>{route.name}</p>
-                  ))} */}
                   {(provided, snapshot) => {
                     return (
                       <div

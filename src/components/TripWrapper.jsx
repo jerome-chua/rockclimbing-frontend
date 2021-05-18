@@ -15,7 +15,7 @@ export default function TripWrapper() {
     <Container>
       <Row>
         <Col>
-          <h1 className="mt-3 mb-5 text-center">Trips</h1>
+          <h1 className="mt-3 mb-5 text-center lead">A L L - T R I P S</h1>
           <TripList tripRoutes={tripRoutes} />
         </Col>
       </Row>
