@@ -1,17 +1,8 @@
-import React, { useEffect, useContext, useState } from "react";
-import { TripContext, loadTripRoutes } from "../store.js";
+import React, { useEffect, useState, useContext } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import styled from "styled-components";
-
-// import { Container, Row, Col } from "react-bootstrap";
-// import styled from "styled-components";
-
-// const StyledContainer = styled.div`
-//   margin: 8px;
-//   padding: 5px;
-//   border: 1px solid lightgrey;
-//   border-radius: 15px;
-// `;
+import AddDifficulty from "./AddDifficulty.jsx";
+import { loadRoutes, addNewRoute, difficulty, TripContext } from "../store.js";
 
 const TripTitle = styled.h2`
   color: #f2a154;
@@ -19,17 +10,6 @@ const TripTitle = styled.h2`
   font-family: monaco;
   text-transform: capitalize;
 `;
-
-// const RouteName = styled.li`
-//   display: flex;
-//   align-items: center;
-//   border: solid 2px #d0d0d0;
-//   border-radius: 10px;
-//   padding: 0.5em 0.8em 0.5em 0.5em;
-//   margin-bottom: 0.5em;
-//   color: #314e52;
-//   background-color: white;
-// `;
 
 const onDragEnd = (result, columns, setColumns) => {
   if (!result.destination) return;
@@ -76,6 +56,8 @@ const onDragEnd = (result, columns, setColumns) => {
 
 export default function TripList({ tripRoutes }) {
   const [columns, setColumns] = useState({});
+  const { store, dispatch } = useContext(TripContext);
+  const { isModalOpen, modalContent, routes } = store;
 
   useEffect(() => {
     setColumns(tripRoutes);
@@ -111,7 +93,7 @@ export default function TripList({ tripRoutes }) {
                             ? "lightblue"
                             : "lightgrey",
                           padding: 4,
-                          width: 250,
+                          width: 500,
                           minHeight: 500,
                         }}
                       >
@@ -141,6 +123,30 @@ export default function TripList({ tripRoutes }) {
                                     }}
                                   >
                                     {item.name}
+                                    {item.difficulty ? (
+                                      <span>{item.difficulty}</span>
+                                    ) : (
+                                      <>
+                                        <AddDifficulty
+                                          dispatch={dispatch}
+                                          difficulty={difficulty}
+                                          id={index}
+                                          routeId={item.id}
+                                        />
+                                      </>
+                                    )}
+                                    <button
+                                      key={item.id}
+                                      className="add-route-remove-btn"
+                                      onClick={() =>
+                                        dispatch({
+                                          type: "REMOVE_ROUTE",
+                                          payload: item.id,
+                                        })
+                                      }
+                                    >
+                                      REMOVE
+                                    </button>
                                   </div>
                                 );
                               }}
